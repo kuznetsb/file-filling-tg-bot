@@ -1,9 +1,11 @@
+import sqlite3
 from dataclasses import dataclass
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from handlers.docx_writer import form_docx_offer
 from handlers.products import CreateProduct, Product
 from keyboards.offer_keyboard import (
     create_vat_keyboard,
@@ -33,6 +35,15 @@ class Offer:
     supply_type: str
     vat: str
     products: list[Product]
+
+
+@dataclass
+class User:
+    full_name: str
+    position: str
+    phone: str
+    email: str
+    website: str
 
 
 async def handle_offer_creation(message: types.Message):
@@ -135,11 +146,28 @@ async def generate_offer(
     if callback_data["format"] == "cancel":
         await state.finish()
         return
+
     offer_data = await state.get_data()
     offer = offer_data["offer"]
 
     if callback_data["format"] == "docx":
-        pass
+        user = get_user_instance(call.from_user.id)
+        docx_offer = form_docx_offer(offer, user)
 
     elif callback_data["format"] == "pdf":
         pass
+
+
+def get_user_instance(user_id: int) -> User:
+    with sqlite3.connect("db.sqlite3") as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
+        user_info = cursor.fetchone()
+
+    return User(
+        full_name=user_info[1],
+        position=user_info[2],
+        phone=user_info[3],
+        email=user_info[4],
+        website=user_info[5],
+    )
