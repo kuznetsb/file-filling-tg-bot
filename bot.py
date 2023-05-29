@@ -33,7 +33,7 @@ async def edit_profile(message: types.Message):
 
 
 @dp.message_handler(commands=["cancel"], state="*")
-async def edit_profile(message: types.Message, state: FSMContext):
+async def cancel_state(message: types.Message, state: FSMContext):
     await state.finish()
 
 

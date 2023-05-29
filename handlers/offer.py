@@ -1,11 +1,13 @@
+import os
 import sqlite3
+from _decimal import Decimal
 from dataclasses import dataclass
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from handlers.docx_writer import form_docx_offer
+from handlers.docx_writer import form_docx_offer, PATH_TO_OFFER
 from handlers.products import CreateProduct, Product
 from keyboards.offer_keyboard import (
     create_vat_keyboard,
@@ -35,6 +37,7 @@ class Offer:
     supply_type: str
     vat: str
     products: list[Product]
+    total: Decimal
 
 
 @dataclass
@@ -48,7 +51,7 @@ class User:
 
 async def handle_offer_creation(message: types.Message):
     await MakeOffer.waiting_for_vat_type.set()
-    await message.answer("Выберите тип НДС", reply_markup=create_vat_keyboard())
+    await message.answer("Выберите НДС", reply_markup=create_vat_keyboard())
 
 
 @dp.callback_query_handler(CALLBACK_VAT.filter(), state=MakeOffer.waiting_for_vat_type)
@@ -78,6 +81,10 @@ async def handle_supply_type(
 
 @dp.message_handler(state=MakeOffer.waiting_for_offer_num)
 async def get_offer_number(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(offer_num=message.text)
 
     await MakeOffer.next()
@@ -118,11 +125,13 @@ async def add_specification(
         products.append(product)
 
     if callback_data["action"] == "complete":
+        total = sum(product.total for product in products)
         offer = Offer(
             number=offer_data["offer_num"],
             supply_type=offer_data["supply_type"],
             vat=offer_data["vat"],
             products=products,
+            total=round(total, 2),
         )
         await state.update_data(offer=offer)
         await MakeOffer.next()
@@ -152,10 +161,16 @@ async def generate_offer(
 
     if callback_data["format"] == "docx":
         user = get_user_instance(call.from_user.id)
-        docx_offer = form_docx_offer(offer, user)
+        form_docx_offer(offer, user)
+
+        with open(os.path.join(PATH_TO_OFFER, "offer.docx"), "rb") as file:
+            await call.message.reply_document(file)
 
     elif callback_data["format"] == "pdf":
         pass
+
+    await call.answer()
+    await state.finish()
 
 
 def get_user_instance(user_id: int) -> User:

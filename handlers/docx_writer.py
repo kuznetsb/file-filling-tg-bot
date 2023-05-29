@@ -12,15 +12,13 @@ from docx.shared import Cm, Pt
 if TYPE_CHECKING:
     from offer import Offer, User
 
-TABLE_HEADER = (
+TABLE_HEADER = [
     "№",
     "Наименование",
     "Кол-во",
     "Ед.",
     "Срок поставки",
-    "Цена с НДС 20%",
-    "Сума с НДС 20%",
-)
+]
 
 IMAGE_HEIGHT = Cm(5)
 
@@ -101,13 +99,25 @@ def create_offer_header(document: Document, offer: "Offer"):
     offer_header.paragraphs[1].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
 
-def create_table_header(document: Document):
+def create_table_header(document: Document, offer: "Offer"):
     table = document.add_table(rows=1, cols=7, style="Table Grid")
     heading_cells = table.rows[0].cells
     table.columns[0].width = Cm(0.5)
     table.columns[1].width = Cm(10)
     table.columns[2].width = Cm(2)
     table.columns[3].width = Cm(1)
+
+    vat_header = []
+
+    if offer.vat == "10%":
+        vat_header.extend(["Цена с НДС 10%", "Сумма с НДС 10%"])
+    elif offer.vat == "20%":
+        vat_header.extend(["Цена с НДС 20%", "Сумма с НДС 20%"])
+    else:
+        vat_header.extend(["Цена без НДС", "Сумма без НДС"])
+
+    TABLE_HEADER.extend(vat_header)
+
     for i in range(len(TABLE_HEADER)):
         heading_cells[i].text = TABLE_HEADER[i]
         heading_cells[i].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
@@ -120,11 +130,15 @@ def fill_table(table, offer: "Offer"):
         data_row = table.add_row().cells
         data_row[0].text = str(i + 1)
         data_row[1].text = products[i].name
-        data_row[2].text = products[i].quantity
+        data_row[2].text = str(products[i].quantity)
         data_row[3].text = products[i].unit
-        data_row[4].text = str(10)
-        data_row[5].text = products[i].price
-        data_row[6].text = products[i].price
+        data_row[4].text = str(products[i].days)
+        data_row[5].text = str(products[i].price)
+        data_row[6].text = str(products[i].total)
+
+    final_row = table.add_row().cells
+    final_row[-2].text = "Итого"
+    final_row[-1].text = str(offer.total)
 
 
 def add_offer_description(document: Document, offer: "Offer"):
@@ -189,7 +203,7 @@ def form_docx_offer(offer: "Offer" = None, user: "User" = None):
     create_picture_header(document)
     add_company_info(document)
     create_offer_header(document, offer)
-    table = create_table_header(document)
+    table = create_table_header(document, offer)
     fill_table(table, offer)
     add_offer_description(document, offer)
     add_manager_info(document, user)

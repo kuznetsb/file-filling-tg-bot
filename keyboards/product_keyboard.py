@@ -12,7 +12,6 @@ def create_unit_keyboard():
         types.InlineKeyboardButton(text="м.", callback_data=UNIT_TYPE.new(type="м.")),
         types.InlineKeyboardButton(text="км.", callback_data=UNIT_TYPE.new(type="км.")),
         types.InlineKeyboardButton(text="м2.", callback_data=UNIT_TYPE.new(type="м2.")),
-        types.InlineKeyboardButton(text="м2.", callback_data=UNIT_TYPE.new(type="м2.")),
         types.InlineKeyboardButton(text="м3.", callback_data=UNIT_TYPE.new(type="м3.")),
         types.InlineKeyboardButton(text="тн.", callback_data=UNIT_TYPE.new(type="тн.")),
         types.InlineKeyboardButton(text="п.м", callback_data=UNIT_TYPE.new(type="п.м")),
