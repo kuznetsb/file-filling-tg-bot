@@ -5,7 +5,11 @@ from aiogram.dispatcher import FSMContext
 
 from config import dp
 from handlers.offer import handle_offer_creation
-from handlers.users import handle_user_creation, handle_editing_user_profile
+from handlers.users import (
+    handle_user_creation,
+    handle_editing_user_profile,
+    handle_change_permission,
+)
 from handlers.template import handle_template_edit
 
 

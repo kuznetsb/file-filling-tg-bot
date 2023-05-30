@@ -22,7 +22,7 @@ async def handle_template_edit(message: types.Message):
         cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
         user = cursor.fetchone()
 
-    if user[-1] is not True:
+    if bool(user[-1]) is not True:
         await message.answer("У вас нет доступа")
         return
 
