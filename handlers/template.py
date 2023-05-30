@@ -3,6 +3,7 @@ import os.path
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.types import ContentTypes
 
 from config import dp, bot
 from handlers.docx_writer import PATH_TO_IMAGES, PATH_TO_COMPANY_INFO
@@ -34,17 +35,24 @@ async def choose_field_to_edit(
         await call.message.answer("Введите новую информацию")
 
 
-@dp.message_handler(state=EditTemplate.waiting_new)
-async def insert_new_value(message: types.Message, state: FSMContext):
+@dp.message_handler(state=EditTemplate.waiting_new, content_types=ContentTypes.DOCUMENT)
+async def insert_new_image(message: types.Message, state: FSMContext):
     edit_data = await state.get_data()
     if edit_data["edit"] == "logo":
         await create_image_file(message, "logo")
     elif edit_data["edit"] == "sign":
         await create_image_file(message, "sign")
-    else:
-        filename = f"{edit_data['edit']}.txt"
-        with open(os.path.join(PATH_TO_COMPANY_INFO, filename), "w") as file:
-            file.write(message.text)
+
+    await message.answer("Успешно изменено")
+    await state.finish()
+
+
+@dp.message_handler(state=EditTemplate.waiting_new)
+async def insert_new_value(message: types.Message, state: FSMContext):
+    edit_data = await state.get_data()
+    filename = f"{edit_data['edit']}.txt"
+    with open(os.path.join(PATH_TO_COMPANY_INFO, filename), "w") as file:
+        file.write(message.text)
 
     await message.answer("Успешно изменено")
     await state.finish()

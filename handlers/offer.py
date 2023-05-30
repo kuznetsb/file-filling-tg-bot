@@ -7,7 +7,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from handlers.docx_writer import form_docx_offer, PATH_TO_OFFER
+from handlers.docx_writer import form_docx_offer, PATH_TO_OFFER, PATH_TO_IMAGES
 from handlers.products import CreateProduct, Product
 from keyboards.offer_keyboard import (
     create_vat_keyboard,
@@ -161,13 +161,27 @@ async def generate_offer(
 
     if callback_data["format"] == "docx":
         user = get_user_instance(call.from_user.id)
-        filename = offer.number
-        form_docx_offer(offer, user, filename)
+        offer_filename = offer.number
 
-        with open(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"), "rb") as file:
+        image_names = os.listdir(PATH_TO_IMAGES)
+
+        logo_filename = ""
+        sign_filename = ""
+
+        for file in image_names:
+            if file.startswith("logo"):
+                logo_filename = file
+            else:
+                sign_filename = file
+
+        form_docx_offer(offer, user, offer_filename, logo_filename, sign_filename)
+
+        with open(
+            os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"), "rb"
+        ) as file:
             await call.message.reply_document(file)
 
-        os.remove(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"))
+        os.remove(os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"))
 
     elif callback_data["format"] == "pdf":
         pass

@@ -37,7 +37,7 @@ def specify_margins(document: Document) -> None:
         section.right_margin = Cm(2)
 
 
-def create_picture_header(document: Document) -> None:
+def create_picture_header(document: Document, logo_filename: str) -> None:
     table = document.add_table(rows=1, cols=1)
     image_cells = table.rows[0].cells
     row = table.rows[0]
@@ -51,7 +51,9 @@ def create_picture_header(document: Document) -> None:
     run = paragraph.add_run()
 
     run.add_picture(
-        os.path.join(PATH_TO_IMAGES, "logo.jpg"), width=cell_width, height=cell_height
+        os.path.join(PATH_TO_IMAGES, logo_filename),
+        width=cell_width,
+        height=cell_height,
     )
 
     new_paragraph = document.add_paragraph()
@@ -59,7 +61,7 @@ def create_picture_header(document: Document) -> None:
 
 
 def add_company_info(document: Document):
-    with open(os.path.join(PATH_TO_COMPANY_INFO, "company_info.txt")) as file:
+    with open(os.path.join(PATH_TO_COMPANY_INFO, "requisites.txt")) as file:
         lines = file.readlines()
 
     for line in lines:
@@ -168,7 +170,7 @@ def add_offer_description(document: Document, offer: "Offer"):
         paragraph.paragraph_format.space_after = Pt(1)
 
 
-def add_manager_info(document: Document, user: "User"):
+def add_manager_info(document: Document, user: "User", sign_filename: str):
     with open(os.path.join(PATH_TO_COMPANY_INFO, "ceo_info.txt")) as file:
         lines = file.readlines()
     table = document.add_table(rows=1, cols=3)
@@ -181,7 +183,9 @@ def add_manager_info(document: Document, user: "User"):
     paragraph = manager_info_table[1].paragraphs[0]
     run = paragraph.add_run()
 
-    run.add_picture(os.path.join(PATH_TO_IMAGES, "sign.png"), width=Cm(4), height=Cm(4))
+    run.add_picture(
+        os.path.join(PATH_TO_IMAGES, sign_filename), width=Cm(4), height=Cm(4)
+    )
 
     manager_info_cell = manager_info_table[0]
 
@@ -198,19 +202,25 @@ def add_manager_info(document: Document, user: "User"):
         manager_info_cell.paragraphs[i].paragraph_format.space_after = Pt(1)
 
 
-def form_docx_offer(offer: "Offer", user: "User", filename: str):
+def form_docx_offer(
+    offer: "Offer",
+    user: "User",
+    offer_filename: str,
+    logo_filename: str,
+    sign_filename: str,
+):
     document = Document()
     specify_font(document)
     specify_margins(document)
-    create_picture_header(document)
+    create_picture_header(document, logo_filename)
     add_company_info(document)
     create_offer_header(document, offer)
     table = create_table_header(document, offer)
     fill_table(table, offer)
     add_offer_description(document, offer)
-    add_manager_info(document, user)
+    add_manager_info(document, user, sign_filename)
 
-    document.save(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"))
+    document.save(os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"))
 
 
 def insert_hr(paragraph):

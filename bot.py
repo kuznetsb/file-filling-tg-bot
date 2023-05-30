@@ -14,7 +14,7 @@ async def set_default_commands(dispatcher):
         [
             types.BotCommand("cancel", "Отмена"),
             types.BotCommand("register", "Регистрация"),
-            types.BotCommand("creat_eoffer", "Создать КП"),
+            types.BotCommand("create_offer", "Создать КП"),
             types.BotCommand("edit_template", "Редактировать инфо для шаблона"),
             types.BotCommand("edit_profile", "Редактировать профиль"),
         ]
