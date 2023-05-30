@@ -9,6 +9,7 @@ from keyboards.user_keyboard import (
     create_user_edit_keyboard,
     EDIT_FIELD,
     create_access_edit_keyboard,
+    EDIT_ACCESS,
 )
 
 
@@ -202,7 +203,7 @@ async def handle_change_permission(message: types.Message):
 
 
 @dp.callback_query_handler(
-    EDIT_FIELD.filter(), state=EditAccess.waiting_type_of_editing
+    EDIT_ACCESS.filter(), state=EditAccess.waiting_type_of_editing
 )
 async def choose_action_to_edit(
     call: types.CallbackQuery, callback_data: dict, state: FSMContext
