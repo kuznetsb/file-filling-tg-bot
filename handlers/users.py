@@ -5,7 +5,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from config import dp
-from keyboards.user_keyboard import create_user_edit_keyboard, EDIT_FIELD
+from keyboards.user_keyboard import (
+    create_user_edit_keyboard,
+    EDIT_FIELD,
+    create_access_edit_keyboard,
+)
 
 
 class CreateUser(StatesGroup):
@@ -19,6 +23,11 @@ class CreateUser(StatesGroup):
 class EditProfile(StatesGroup):
     waiting_what_to_edit = State()
     waiting_new = State()
+
+
+class EditAccess(StatesGroup):
+    waiting_type_of_editing = State()
+    waiting_user_id = State()
 
 
 async def handle_user_creation(message: types.Message):
@@ -133,6 +142,7 @@ async def handle_editing_user_profile(message: types.Message):
     if user:
         await EditProfile.waiting_what_to_edit.set()
         await message.answer(
+            f"ID: {user[0]}\n"
             f"ФИО: {user[1]}\n"
             f"Должность: {user[2]}\n"
             f"Телефон: {user[3]}\n"
@@ -167,6 +177,71 @@ async def insert_new_value(message: types.Message, state: FSMContext):
         cursor.execute(
             "UPDATE users SET (%s) = (?) WHERE user_id = (?)" % field_edit,
             (message.text, message.from_user.id),
+        )
+        db.commit()
+        await state.finish()
+        await message.answer("Упешно изменено")
+
+
+async def handle_change_permission(message: types.Message):
+    with sqlite3.connect("db.sqlite3") as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
+        user = cursor.fetchone()
+
+    if user[-1] is not True:
+        await message.answer("У вас нет доступа")
+        return
+
+    await EditAccess.waiting_type_of_editing.set()
+
+    await message.answer(
+        "Изменить доступ к редактированию шабона КП",
+        reply_markup=create_access_edit_keyboard(),
+    )
+
+
+@dp.callback_query_handler(
+    EDIT_FIELD.filter(), state=EditAccess.waiting_type_of_editing
+)
+async def choose_action_to_edit(
+    call: types.CallbackQuery, callback_data: dict, state: FSMContext
+):
+    await state.update_data(action=callback_data["action"])
+    await EditAccess.next()
+    await call.message.answer("Введи id пользователя")
+
+
+@dp.message_handler(state=EditAccess.waiting_user_id)
+async def modify_access(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
+    edit_data = await state.get_data()
+    action = edit_data["action"]
+
+    new_permission = 1 if action == "add" else 0
+
+    if not message.text.isdigit():
+        await message.answer("Id должен состоять только из цифр")
+        await state.set_state(EditAccess.waiting_user_id.state)
+        return
+
+    user_modified_id = int(message.text)
+
+    with sqlite3.connect("db.sqlite3") as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE user_id=?", (user_modified_id,))
+        user = cursor.fetchone()
+        if not user:
+            await message.answer("Пользователь с таким id не зарегестрирован")
+            await state.finish()
+            return
+
+        cursor.execute(
+            "UPDATE users SET is_admin = (?) WHERE user_id = (?)",
+            (new_permission, user_modified_id),
         )
         db.commit()
         await state.finish()

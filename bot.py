@@ -50,6 +50,11 @@ async def cancel_state(message: types.Message):
     await handle_template_edit(message)
 
 
+@dp.message_handler(commands=["permission"])
+async def cancel_state(message: types.Message):
+    await handle_change_permission(message)
+
+
 @dp.message_handler(commands=["cancel"], state="*")
 async def cancel_state(message: types.Message, state: FSMContext):
     await state.finish()

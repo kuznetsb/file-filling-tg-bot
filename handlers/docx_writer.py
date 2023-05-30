@@ -169,6 +169,8 @@ def add_offer_description(document: Document, offer: "Offer"):
         paragraph.paragraph_format.line_spacing = 1
         paragraph.paragraph_format.space_after = Pt(1)
 
+    document.add_paragraph()
+
 
 def add_manager_info(document: Document, user: "User", sign_filename: str):
     with open(os.path.join(PATH_TO_COMPANY_INFO, "ceo_info.txt")) as file:
@@ -200,8 +202,6 @@ def add_manager_info(document: Document, user: "User", sign_filename: str):
     for i in range(-1, -6, -1):
         manager_info_cell.paragraphs[i].paragraph_format.line_spacing = 1
         manager_info_cell.paragraphs[i].paragraph_format.space_after = Pt(1)
-
-    manager_info_cell.add_paragraph()
 
 
 def form_docx_offer(

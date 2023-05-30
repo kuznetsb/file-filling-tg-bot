@@ -3,6 +3,7 @@ from aiogram.utils.callback_data import CallbackData
 
 
 EDIT_FIELD = CallbackData("field", "name")
+EDIT_ACCESS = CallbackData("access", "action")
 
 
 def create_user_edit_keyboard():
@@ -21,6 +22,20 @@ def create_user_edit_keyboard():
         ),
         types.InlineKeyboardButton(
             text="Сайт", callback_data=EDIT_FIELD.new(name="website")
+        ),
+    ]
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(*buttons)
+    return keyboard
+
+
+def create_access_edit_keyboard():
+    buttons = [
+        types.InlineKeyboardButton(
+            text="Добавить", callback_data=EDIT_ACCESS.new(action="add")
+        ),
+        types.InlineKeyboardButton(
+            text="Убрать", callback_data=EDIT_ACCESS.new(action="delete")
         ),
     ]
     keyboard = types.InlineKeyboardMarkup()
