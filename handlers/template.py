@@ -1,4 +1,5 @@
 import os.path
+import sqlite3
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -16,6 +17,15 @@ class EditTemplate(StatesGroup):
 
 
 async def handle_template_edit(message: types.Message):
+    with sqlite3.connect("db.sqlite3") as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
+        user = cursor.fetchone()
+
+    if user[-1] is not True:
+        await message.answer("У вас нет доступа")
+        return
+
     await EditTemplate.waiting_what_to_edit.set()
     await message.answer("Что изменить", reply_markup=create_template_edit_keyboard())
 

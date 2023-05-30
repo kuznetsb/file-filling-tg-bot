@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from docx2pdf import convert
 
 from handlers.docx_writer import form_docx_offer, PATH_TO_OFFER, PATH_TO_IMAGES
 from handlers.products import CreateProduct, Product
@@ -158,23 +159,12 @@ async def generate_offer(
 
     offer_data = await state.get_data()
     offer = offer_data["offer"]
+    offer_filename = offer.number
+
+    user = get_user_instance(call.from_user.id)
 
     if callback_data["format"] == "docx":
-        user = get_user_instance(call.from_user.id)
-        offer_filename = offer.number
-
-        image_names = os.listdir(PATH_TO_IMAGES)
-
-        logo_filename = ""
-        sign_filename = ""
-
-        for file in image_names:
-            if file.startswith("logo"):
-                logo_filename = file
-            else:
-                sign_filename = file
-
-        form_docx_offer(offer, user, offer_filename, logo_filename, sign_filename)
+        create_docx_offer(offer, user)
 
         with open(
             os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"), "rb"
@@ -184,10 +174,45 @@ async def generate_offer(
         os.remove(os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"))
 
     elif callback_data["format"] == "pdf":
-        pass
+        create_docx_offer(offer, user)
+
+        convert(
+            os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"),
+            os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.pdf"),
+        )
+        try:
+            with open(
+                os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.pdf"), "rb"
+            ) as file:
+                await call.message.reply_document(file)
+            os.remove(os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.pdf"))
+        except FileNotFoundError:
+            with open(
+                os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"), "rb"
+            ) as file:
+                await call.message.reply_document(file)
+
+        os.remove(os.path.join(PATH_TO_OFFER, f"КП-{offer_filename}.docx"))
 
     await call.answer()
     await state.finish()
+
+
+def create_docx_offer(offer: Offer, user: User):
+    offer_filename = offer.number
+
+    image_names = os.listdir(PATH_TO_IMAGES)
+
+    logo_filename = ""
+    sign_filename = ""
+
+    for file in image_names:
+        if file.startswith("logo"):
+            logo_filename = file
+        else:
+            sign_filename = file
+
+    form_docx_offer(offer, user, offer_filename, logo_filename, sign_filename)
 
 
 def get_user_instance(user_id: int) -> User:

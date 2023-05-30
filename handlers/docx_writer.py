@@ -201,6 +201,8 @@ def add_manager_info(document: Document, user: "User", sign_filename: str):
         manager_info_cell.paragraphs[i].paragraph_format.line_spacing = 1
         manager_info_cell.paragraphs[i].paragraph_format.space_after = Pt(1)
 
+    manager_info_cell.add_paragraph()
+
 
 def form_docx_offer(
     offer: "Offer",

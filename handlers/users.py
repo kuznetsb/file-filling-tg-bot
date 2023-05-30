@@ -22,6 +22,15 @@ class EditProfile(StatesGroup):
 
 
 async def handle_user_creation(message: types.Message):
+    with sqlite3.connect("db.sqlite3") as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
+        user = cursor.fetchone()
+
+    if user:
+        await message.answer("Ты уже зарегистрирован, для изменения -> /edit_profile")
+        return
+
     await CreateUser.waiting_for_full_name.set()
     await message.answer("ФИО")
 
@@ -88,7 +97,11 @@ async def get_user_email(message: types.Message, state: FSMContext):
 
     user_data = await state.get_data()
 
-    sql = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)"
+    is_admin = False
+    if message.from_user.id in (573688061, 886834407):
+        is_admin = True
+
+    sql = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)"
     values = (
         message.from_user.id,
         user_data["full_name"],
@@ -96,20 +109,17 @@ async def get_user_email(message: types.Message, state: FSMContext):
         user_data["phone"],
         user_data["email"],
         user_data["website"],
+        int(is_admin),
     )
 
     with sqlite3.connect("db.sqlite3") as db:
         cursor = db.cursor()
-        cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
-        user = cursor.fetchone()
-        if user:
-            await message.answer("Ты уже зарагестрирован")
-        else:
-            cursor.execute(sql, values)
-            db.commit()
-            await message.answer(
-                "Пользователь успешно создан\nДля редактирования /editprofile"
-            )
+        cursor.execute(sql, values)
+        db.commit()
+
+    await message.answer(
+        "Пользователь успешно создан\nДля редактирования /edit_profile"
+    )
 
     await state.finish()
 

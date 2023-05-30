@@ -26,18 +26,8 @@ with sqlite3.connect("db.sqlite3") as cursor:
             position TEXT NOT NULL,
             phone TEXT NOT NULL,
             email TEXT NOT NULL,
-            website TEXT NOT NULL
+            website TEXT NOT NULL,
+            is_admin INT NOT NULL
             )
         """
-    )
-
-
-async def set_default_commands():
-    await dp.bot.set_my_commands(
-        [
-            types.BotCommand("cancel", "Отмена"),
-            types.BotCommand("register", "Регистрация"),
-            types.BotCommand("createoffer", "Создать КП"),
-            types.BotCommand("editprofile", "Редактировать профиль"),
-        ]
     )
