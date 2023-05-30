@@ -69,9 +69,6 @@ def choice_file_format():
             text="DOCX", callback_data=FILE_FORMAT.new(format="docx")
         ),
         types.InlineKeyboardButton(
-            text="PDF", callback_data=FILE_FORMAT.new(format="pdf")
-        ),
-        types.InlineKeyboardButton(
             text="Отмена", callback_data=FILE_FORMAT.new(format="cancel")
         ),
     ]
