@@ -161,10 +161,13 @@ async def generate_offer(
 
     if callback_data["format"] == "docx":
         user = get_user_instance(call.from_user.id)
-        form_docx_offer(offer, user)
+        filename = offer.number
+        form_docx_offer(offer, user, filename)
 
-        with open(os.path.join(PATH_TO_OFFER, "offer.docx"), "rb") as file:
+        with open(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"), "rb") as file:
             await call.message.reply_document(file)
+
+        os.remove(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"))
 
     elif callback_data["format"] == "pdf":
         pass

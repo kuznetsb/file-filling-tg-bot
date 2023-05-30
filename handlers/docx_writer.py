@@ -12,14 +12,6 @@ from docx.shared import Cm, Pt
 if TYPE_CHECKING:
     from offer import Offer, User
 
-TABLE_HEADER = [
-    "№",
-    "Наименование",
-    "Кол-во",
-    "Ед.",
-    "Срок поставки",
-]
-
 IMAGE_HEIGHT = Cm(5)
 
 PATH_TO_IMAGES = os.path.join("files", "images")
@@ -100,6 +92,14 @@ def create_offer_header(document: Document, offer: "Offer"):
 
 
 def create_table_header(document: Document, offer: "Offer"):
+    table_header = [
+        "№",
+        "Наименование",
+        "Кол-во",
+        "Ед.",
+        "Срок поставки (дней)",
+    ]
+
     table = document.add_table(rows=1, cols=7, style="Table Grid")
     heading_cells = table.rows[0].cells
     table.columns[0].width = Cm(0.5)
@@ -116,10 +116,10 @@ def create_table_header(document: Document, offer: "Offer"):
     else:
         vat_header.extend(["Цена без НДС", "Сумма без НДС"])
 
-    TABLE_HEADER.extend(vat_header)
+    table_header.extend(vat_header)
 
-    for i in range(len(TABLE_HEADER)):
-        heading_cells[i].text = TABLE_HEADER[i]
+    for i in range(len(table_header)):
+        heading_cells[i].text = table_header[i]
         heading_cells[i].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     return table
 
@@ -150,7 +150,8 @@ def add_offer_description(document: Document, offer: "Offer"):
 
     description.text = ""
     description.paragraphs[0].add_run(lines[0].strip()).bold = True
-    description.paragraphs[0].paragraph_format.line_spacing = 0.5
+    description.paragraphs[0].paragraph_format.line_spacing = 1
+    description.paragraphs[0].paragraph_format.space_after = Pt(1)
 
     line_2_start = (
         "Оборудование новое, "
@@ -158,11 +159,13 @@ def add_offer_description(document: Document, offer: "Offer"):
         else "Продукция новая, "
     )
     description.add_paragraph(line_2_start + lines[1].strip())
-    description.paragraphs[1].paragraph_format.line_spacing = 0.5
+    description.paragraphs[1].paragraph_format.line_spacing = 1
+    description.paragraphs[1].paragraph_format.space_after = Pt(1)
 
     for line in lines[2:]:
         paragraph = description.add_paragraph(line.strip())
-        paragraph.paragraph_format.line_spacing = 0.5
+        paragraph.paragraph_format.line_spacing = 1
+        paragraph.paragraph_format.space_after = Pt(1)
 
 
 def add_manager_info(document: Document, user: "User"):
@@ -178,9 +181,7 @@ def add_manager_info(document: Document, user: "User"):
     paragraph = manager_info_table[1].paragraphs[0]
     run = paragraph.add_run()
 
-    run.add_picture(
-        os.path.join(PATH_TO_IMAGES, "sign.png"),
-    )
+    run.add_picture(os.path.join(PATH_TO_IMAGES, "sign.png"), width=Cm(4), height=Cm(4))
 
     manager_info_cell = manager_info_table[0]
 
@@ -193,10 +194,11 @@ def add_manager_info(document: Document, user: "User"):
     manager_info_cell.add_paragraph(user.website)
 
     for i in range(-1, -6, -1):
-        manager_info_cell.paragraphs[i].paragraph_format.line_spacing = 0.5
+        manager_info_cell.paragraphs[i].paragraph_format.line_spacing = 1
+        manager_info_cell.paragraphs[i].paragraph_format.space_after = Pt(1)
 
 
-def form_docx_offer(offer: "Offer" = None, user: "User" = None):
+def form_docx_offer(offer: "Offer", user: "User", filename: str):
     document = Document()
     specify_font(document)
     specify_margins(document)
@@ -208,7 +210,7 @@ def form_docx_offer(offer: "Offer" = None, user: "User" = None):
     add_offer_description(document, offer)
     add_manager_info(document, user)
 
-    document.save(os.path.join(PATH_TO_OFFER, "offer.docx"))
+    document.save(os.path.join(PATH_TO_OFFER, f"КП-{filename}.docx"))
 
 
 def insert_hr(paragraph):

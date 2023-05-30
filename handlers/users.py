@@ -28,6 +28,10 @@ async def handle_user_creation(message: types.Message):
 
 @dp.message_handler(state=CreateUser.waiting_for_full_name)
 async def get_user_name(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(full_name=message.text)
 
     await CreateUser.next()
@@ -37,6 +41,10 @@ async def get_user_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CreateUser.waiting_for_position)
 async def get_user_position(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(position=message.text)
 
     await CreateUser.next()
@@ -46,6 +54,10 @@ async def get_user_position(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CreateUser.waiting_for_phone)
 async def get_user_phone(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(phone=message.text)
 
     await CreateUser.next()
@@ -55,6 +67,10 @@ async def get_user_phone(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CreateUser.waiting_for_email)
 async def get_user_email(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(email=message.text)
 
     await CreateUser.next()
@@ -64,6 +80,10 @@ async def get_user_email(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=CreateUser.waiting_for_website)
 async def get_user_email(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     await state.update_data(website=message.text)
 
     user_data = await state.get_data()
@@ -95,14 +115,13 @@ async def get_user_email(message: types.Message, state: FSMContext):
 
 
 async def handle_editing_user_profile(message: types.Message):
-    await EditProfile.waiting_what_to_edit.set()
-
     with sqlite3.connect("db.sqlite3") as db:
         cursor = db.cursor()
         cursor.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))
         user = cursor.fetchone()
 
     if user:
+        await EditProfile.waiting_what_to_edit.set()
         await message.answer(
             f"ФИО: {user[1]}\n"
             f"Должность: {user[2]}\n"
@@ -127,6 +146,10 @@ async def choose_field_to_edit(
 
 @dp.message_handler(state=EditProfile.waiting_new)
 async def insert_new_value(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.finish()
+        return
+
     edit_data = await state.get_data()
     field_edit = edit_data["edit"]
     with sqlite3.connect("db.sqlite3") as db:
