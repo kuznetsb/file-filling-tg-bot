@@ -196,7 +196,7 @@ async def handle_change_permission(message: types.Message):
     await EditAccess.waiting_type_of_editing.set()
 
     await message.answer(
-        "Изменить доступ к редактированию шабона КП",
+        "Изменить доступ к редактированию шаблона КП",
         reply_markup=create_access_edit_keyboard(),
     )
 
