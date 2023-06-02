@@ -39,7 +39,11 @@ async def choose_field_to_edit(
     await state.update_data(edit=callback_data["name"])
     await EditTemplate.next()
 
-    if callback_data["name"] in ("logo", "sign"):
+    if callback_data["name"] in (
+        "logo",
+        "sign",
+        "sign_invoice",
+    ):
         await call.message.answer("Загрузите новое фото")
     else:
         await call.message.answer("Введите новую информацию")
