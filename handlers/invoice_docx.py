@@ -96,9 +96,8 @@ def create_invoice_header(document: Document, invoice: "Invoice"):
 
     table = document.add_table(rows=4, cols=2)
     sections = document.sections
-    page_width = sections[0].page_width
-    table.columns[0].width = Inches(2.5)
-    table.columns[1].width = page_width - Inches(2.5)
+    table.columns[0].width = Cm(5)
+    table.columns[1].width = Cm(12)
 
     obj_styles = document.styles
     obj_charstyle = obj_styles.add_style("HeaderStyle", WD_STYLE_TYPE.CHARACTER)
@@ -221,10 +220,8 @@ def add_ceo_info(document, sign_file):
     run.add_picture(os.path.join(PATH_TO_IMAGES, sign_file), width=Cm(4), height=Cm(4))
 
     table.rows[0].cells[0].add_paragraph()
-    table.rows[0].cells[0].add_paragraph()
     table.rows[0].cells[0].add_paragraph(lines[2])
 
-    table.rows[0].cells[-1].add_paragraph()
     table.rows[0].cells[-1].add_paragraph()
     table.rows[0].cells[-1].add_paragraph(lines[3])
 
