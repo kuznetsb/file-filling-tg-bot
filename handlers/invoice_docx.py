@@ -91,13 +91,12 @@ def add_company_info(document: Document):
 
 
 def create_invoice_header(document: Document, invoice: "Invoice"):
+    document.add_paragraph()
     with open(os.path.join(PATH_TO_COMPANY_INFO, "invoice_company_info.txt")) as file:
         lines = file.readlines()
 
     table = document.add_table(rows=4, cols=2)
-    sections = document.sections
-    table.columns[0].width = Cm(5)
-    table.columns[1].width = Cm(12)
+    table.columns[1].width = Cm(30)
 
     obj_styles = document.styles
     obj_charstyle = obj_styles.add_style("HeaderStyle", WD_STYLE_TYPE.CHARACTER)
@@ -111,6 +110,7 @@ def create_invoice_header(document: Document, invoice: "Invoice"):
     ).bold = True
     paragraph_row_1 = table.cell(0, 1).add_paragraph()
     insert_hr(paragraph_row_1)
+    table.rows[0].cells[1].width = Cm(30)
 
     table.cell(1, 0).text = "Грузоотправитель"
     table.cell(1, 1).text = (
@@ -119,16 +119,19 @@ def create_invoice_header(document: Document, invoice: "Invoice"):
     )
     paragraph_row_2 = table.cell(1, 1).add_paragraph()
     insert_hr(paragraph_row_2)
+    table.rows[1].cells[1].width = Cm(30)
 
     table.cell(2, 0).text = "Плательщик"
     table.cell(2, 1).text = invoice.buyer
     paragraph_row_3 = table.cell(2, 1).add_paragraph()
     insert_hr(paragraph_row_3)
+    table.rows[2].cells[1].width = Cm(30)
 
     table.cell(3, 0).text = "Грузополучатель"
     table.cell(3, 1).text = invoice.receiver
     paragraph_row_4 = table.cell(3, 1).add_paragraph()
     insert_hr(paragraph_row_4)
+    table.rows[3].cells[1].width = Cm(30)
 
 
 def create_table_header(document: Document, invoice: "Invoice"):
@@ -176,6 +179,7 @@ def fill_table(table, invoice: "Invoice"):
 def add_table_sumup(document, invoice: "Invoice"):
     document.add_paragraph().add_run(f"Итого: {invoice.total}").bold = True
     document.paragraphs[-1].alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    document.paragraphs[-1].paragraph_format.space_after = Pt(1)
 
     vat_type = 0
 

@@ -154,7 +154,7 @@ async def get_receiver_info(
     await call.answer()
 
 
-@dp.message_handler(state=MakeInvoice.waiting_for_custom_date)
+@dp.message_handler(state=MakeInvoice.waiting_for_custom_receiver)
 async def get_manual_date(message: types.Message, state: FSMContext):
     if message.text == "/cancel":
         await state.finish()
