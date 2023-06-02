@@ -4,6 +4,7 @@ from aiogram import executor, types
 from aiogram.dispatcher import FSMContext
 
 from config import dp
+from handlers.invoice import handle_invoice_creation
 from handlers.offer import handle_offer_creation
 from handlers.users import (
     handle_user_creation,
@@ -19,6 +20,7 @@ async def set_default_commands(dispatcher):
             types.BotCommand("cancel", "Отмена"),
             types.BotCommand("register", "Регистрация"),
             types.BotCommand("create_offer", "Создать КП"),
+            types.BotCommand("create_invoice", "Создать Счет"),
             types.BotCommand("edit_template", "Редактировать инфо для шаблона"),
             types.BotCommand("edit_profile", "Редактировать профиль"),
         ]
@@ -37,6 +39,11 @@ async def create_offer(message: types.Message):
         await message.answer(
             "Для создания КП сначала заполните свои данные -> /register"
         )
+
+
+@dp.message_handler(commands=["create_invoice"])
+async def create_invoice(message: types.Message):
+    await handle_invoice_creation(message)
 
 
 @dp.message_handler(commands=["register"])

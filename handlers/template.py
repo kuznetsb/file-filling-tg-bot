@@ -52,6 +52,8 @@ async def insert_new_image(message: types.Message, state: FSMContext):
         await create_image_file(message, "logo")
     elif edit_data["edit"] == "sign":
         await create_image_file(message, "sign")
+    elif edit_data["edit"] == "sign_invoice":
+        await create_image_file(message, "invoice_sign")
 
     await message.answer("Успешно изменено")
     await state.finish()

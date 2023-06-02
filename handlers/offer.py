@@ -209,7 +209,7 @@ def create_docx_offer(offer: Offer, user: User):
     for file in image_names:
         if file.startswith("logo"):
             logo_filename = file
-        else:
+        elif file.startswith("sign"):
             sign_filename = file
 
     form_docx_offer(offer, user, offer_filename, logo_filename, sign_filename)

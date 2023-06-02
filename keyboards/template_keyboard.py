@@ -11,20 +11,36 @@ def create_template_edit_keyboard():
             text="Логотип", callback_data=TEMPLATE_FIELD.new(name="logo")
         ),
         types.InlineKeyboardButton(
-            text="Реквизиты", callback_data=TEMPLATE_FIELD.new(name="requisites")
+            text="Реквизиты КП", callback_data=TEMPLATE_FIELD.new(name="requisites")
         ),
         types.InlineKeyboardButton(
-            text="Заглавье КП", callback_data=TEMPLATE_FIELD.new(name="offer_header")
+            text="Заголовок КП", callback_data=TEMPLATE_FIELD.new(name="offer_header")
         ),
         types.InlineKeyboardButton(
             text="Описание КП",
             callback_data=TEMPLATE_FIELD.new(name="offer_description"),
         ),
         types.InlineKeyboardButton(
-            text="Инфо руководителя", callback_data=TEMPLATE_FIELD.new(name="ceo_info")
+            text="Инфо руководителя КП",
+            callback_data=TEMPLATE_FIELD.new(name="ceo_info"),
         ),
         types.InlineKeyboardButton(
-            text="Печать", callback_data=TEMPLATE_FIELD.new(name="sign")
+            text="Печать КП", callback_data=TEMPLATE_FIELD.new(name="sign")
+        ),
+        types.InlineKeyboardButton(
+            text="Реквизиты СЧЕТ",
+            callback_data=TEMPLATE_FIELD.new(name="invoice_company_info"),
+        ),
+        types.InlineKeyboardButton(
+            text="Заголовок СЧЕТ",
+            callback_data=TEMPLATE_FIELD.new(name="invoice_header"),
+        ),
+        types.InlineKeyboardButton(
+            text="Инфо руководителя СЧЕТ",
+            callback_data=TEMPLATE_FIELD.new(name="ceo_accountant_info"),
+        ),
+        types.InlineKeyboardButton(
+            text="Печать СЧЕТ", callback_data=TEMPLATE_FIELD.new(name="sign_invoice")
         ),
     ]
     keyboard = types.InlineKeyboardMarkup()
