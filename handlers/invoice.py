@@ -176,15 +176,13 @@ async def add_product(
     state: FSMContext,
 ):
     await CreateProduct.waiting_for_product_name.set()
+    await state.update_data(document="invoice")
 
     await call.message.answer("Укажите наименование")
     await call.answer()
 
 
-@dp.callback_query_handler(
-    ADD_SPEC.filter(), state=CreateProduct.waiting_for_create_product
-)
-async def add_specification(
+async def add_specification_invoice(
     call: types.CallbackQuery, callback_data: dict, state: FSMContext
 ):
     product_data = await state.get_data()
@@ -282,6 +280,9 @@ async def generate_invoice(
             await call.message.reply_document(file)
 
         os.remove(os.path.join(PATH_TO_INVOICE, f"СЧЕТ-{invoice_filename}.docx"))
+
+    await state.finish()
+    await call.answer()
 
 
 def create_docx_invoice(invoice: Invoice):

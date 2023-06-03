@@ -4,14 +4,16 @@ from aiogram import executor, types
 from aiogram.dispatcher import FSMContext
 
 from config import dp
-from handlers.invoice import handle_invoice_creation
-from handlers.offer import handle_offer_creation
+from handlers.invoice import handle_invoice_creation, add_specification_invoice
+from handlers.offer import handle_offer_creation, add_specification_offer
+from handlers.products import CreateProduct
 from handlers.users import (
     handle_user_creation,
     handle_editing_user_profile,
     handle_change_permission,
 )
 from handlers.template import handle_template_edit
+from keyboards.offer_keyboard import ADD_SPEC
 
 
 async def set_default_commands(dispatcher):
@@ -69,6 +71,20 @@ async def cancel_state(message: types.Message):
 @dp.message_handler(commands=["cancel"], state="*")
 async def cancel_state(message: types.Message, state: FSMContext):
     await state.finish()
+
+
+@dp.callback_query_handler(
+    ADD_SPEC.filter(), state=CreateProduct.waiting_for_create_product
+)
+async def add_specification(
+    call: types.CallbackQuery, callback_data: dict, state: FSMContext
+):
+    data = await state.get_data()
+    document = data["document"]
+    if document == "invoice":
+        await add_specification_invoice(call, callback_data, state)
+    elif document == "offer":
+        await add_specification_offer(call, callback_data, state)
 
 
 if __name__ == "__main__":

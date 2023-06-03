@@ -114,7 +114,7 @@ def create_invoice_header(document: Document, invoice: "Invoice"):
 
     table.cell(1, 0).text = "Грузоотправитель"
     table.cell(1, 1).text = (
-        f"{lines[0]} ИНН/КПП {lines[1].split()[-1]}/{lines[2].split()[-1]}"
+        f"{lines[0]} ИНН/КПП {lines[1].split()[-1]}/{lines[2].split()[-1]}, "
         f"{lines[3]}"
     )
     paragraph_row_2 = table.cell(1, 1).add_paragraph()
